@@ -1,26 +1,23 @@
-"""Точка входа CLI-приложения (Этап 2)."""
+"""Точка входа CLI-приложения (Этап 3)."""
 
 import sys
 from src.cli import parse_args
-from src.fetcher import download_apkindex, get_direct_deps, parse_apkindex
+from src.graph import load_test_repo, build_dfs_graph
 
 
 def main() -> None:
-    """Получает и выводит прямые зависимости указанного пакета."""
+    """Запускает рекурсивный DFS на тестовом репозитории."""
     try:
         config = parse_args()
-        raw_index = download_apkindex(config["repo"])
-        packages = parse_apkindex(raw_index)
-        deps = get_direct_deps(
-            packages, config["package"], config["version"]
-        )
+        if config["test_mode"]:
+            repo_map = load_test_repo(config["repo"])
+            graph = build_dfs_graph(
+                repo_map, config["package"], config["max_depth"]
+            )
+            print("Построенный граф зависимостей:", graph)
     except Exception as err:
         print(f"Ошибка: {err}", file=sys.stderr)
         sys.exit(1)
-
-    print(f"Прямые зависимости для {config['package']} ({config['version']}):")
-    for dep in deps:
-       print(f" - {dep}")
 
 
 if __name__ == "__main__":
