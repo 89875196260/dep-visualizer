@@ -1,20 +1,20 @@
-"""Точка входа CLI-приложения (Этап 3)."""
+"""Точка входа CLI-приложения (Этап 4)."""
 
 import sys
 from src.cli import parse_args
-from src.graph import load_test_repo, build_dfs_graph
+from src.graph import load_test_repo, get_load_order
 
 
 def main() -> None:
-    """Запускает рекурсивный DFS на тестовом репозитории."""
+    """Вычисляет и выводит порядок загрузки зависимостей пакетов."""
     try:
         config = parse_args()
         if config["test_mode"]:
             repo_map = load_test_repo(config["repo"])
-            graph = build_dfs_graph(
+            order = get_load_order(
                 repo_map, config["package"], config["max_depth"]
             )
-            print("Построенный граф зависимостей:", graph)
+            print("Порядок загрузки:", " -> ".join(order))
     except Exception as err:
         print(f"Ошибка: {err}", file=sys.stderr)
         sys.exit(1)
